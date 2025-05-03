@@ -184,11 +184,11 @@
      vTaskDelay(pdMS_TO_TICKS(10));
      CHECK(set_bit(dev, NAU7802_PU_CTRL_AVDDS, NAU7802_REG_R0_STATUS)); // AVDDS
      CHECK(nau7802_set_gain(dev, NAU7802_GAIN_128));
-     CHECK(nau7802_set_rate(dev, NAU7802_RATE_40SPS));
+     CHECK(nau7802_set_rate(dev, NAU7802_RATE_320SPS));
      CHECK(write_register(dev, NAU7802_REG_ADC, 0x30)); // ADC config
      CHECK(set_bit(dev, 7, NAU7802_REG_PWR_CTRL)); // PGA_CAP_EN 
      CHECK(nau7802_set_channel(dev, NAU7802_CHANNEL_1));
-    //  CHECK(set_bit(dev, NAU7802_PU_CTRL_CS, NAU7802_REG_R0_STATUS)); 
+     CHECK(set_bit(dev, NAU7802_PU_CTRL_CS, NAU7802_REG_R0_STATUS)); 
      CHECK(nau7802_calibrate_afe(dev));
 
      vTaskDelay(pdMS_TO_TICKS(100));
