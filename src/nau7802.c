@@ -152,43 +152,42 @@
      return ESP_FAIL;
  }
  
- esp_err_t nau7802_init(nau7802_dev_t *dev, i2c_port_t i2c_port, uint8_t i2c_addr)
+ esp_err_t nau7802_init(nau7802_dev_t *dev, i2c_port_t i2c_port, uint8_t i2c_addr,
+                        const nau7802_config_t *config)
  {
-     if (!dev) return ESP_ERR_INVALID_ARG;
+     if (!dev || !config) return ESP_ERR_INVALID_ARG;
      dev->i2c_port = i2c_port;
      dev->i2c_addr = i2c_addr;
- 
+
      ESP_LOGI(TAG, "Initializing NAU7802 at address 0x%02X", i2c_addr);
- 
+
      if (!is_connected(dev)) {
         if (!is_connected(dev)) {
             ESP_LOGE(TAG, "NAU7802 not detected at 0x%02X", i2c_addr);
             return ESP_ERR_NOT_FOUND;
         }
      }
- 
-     uint8_t reg_val = 0;
-     esp_err_t ret = 0;
+
      CHECK(nau7802_reset(dev));
      CHECK(nau7802_power_up(dev));
- 
+
      uint8_t rev_id = 0;
      CHECK(nau7802_get_revision_id(dev, &rev_id));
      ESP_LOGI(TAG, "NAU7802 Revision ID: 0x%02X", rev_id);
      if (rev_id != 0x0F) {
          ESP_LOGW(TAG, "Unexpected revision ID: 0x%02X (expected 0x0F)", rev_id);
      }
- 
+
      ESP_LOGI(TAG, "Configuring NAU7802");
-     CHECK(nau7802_set_ldo(dev, NAU7802_LDO_3V0));
+     CHECK(nau7802_set_ldo(dev, config->ldo));
      vTaskDelay(pdMS_TO_TICKS(10));
      CHECK(set_bit(dev, NAU7802_PU_CTRL_AVDDS, NAU7802_REG_R0_STATUS)); // AVDDS
-     CHECK(nau7802_set_gain(dev, NAU7802_GAIN_128));
-     CHECK(nau7802_set_rate(dev, NAU7802_RATE_10SPS));
+     CHECK(nau7802_set_gain(dev, config->gain));
+     CHECK(nau7802_set_rate(dev, config->rate));
      CHECK(write_register(dev, NAU7802_REG_ADC, 0x30)); // ADC config
-     CHECK(set_bit(dev, 7, NAU7802_REG_PWR_CTRL)); // PGA_CAP_EN 
-     CHECK(nau7802_set_channel(dev, NAU7802_CHANNEL_1));
-     CHECK(set_bit(dev, NAU7802_PU_CTRL_CS, NAU7802_REG_R0_STATUS)); 
+     CHECK(set_bit(dev, 7, NAU7802_REG_PWR_CTRL)); // PGA_CAP_EN
+     CHECK(nau7802_set_channel(dev, config->channel));
+     CHECK(set_bit(dev, NAU7802_PU_CTRL_CS, NAU7802_REG_R0_STATUS));
      CHECK(nau7802_calibrate_afe(dev));
 
      vTaskDelay(pdMS_TO_TICKS(100));

@@ -80,7 +80,8 @@ void nau7802_test_task(void *pvParameters)
     nau7802.i2c_addr = NAU7802_DEFAULT_ADDR;
 
     ESP_LOGI(TAG, "Attempting NAU7802 initialization at address 0x%02X", NAU7802_DEFAULT_ADDR);
-    ret = nau7802_init(&nau7802, I2C_MASTER_PORT, NAU7802_DEFAULT_ADDR);
+    nau7802_config_t nau_config = NAU7802_CONFIG_DEFAULT();
+    ret = nau7802_init(&nau7802, I2C_MASTER_PORT, NAU7802_DEFAULT_ADDR, &nau_config);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "NAU7802 initialization failed: %s", esp_err_to_name(ret));
         vTaskDelete(NULL);

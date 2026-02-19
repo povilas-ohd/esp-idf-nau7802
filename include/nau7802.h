@@ -132,17 +132,41 @@ typedef enum
  } nau7802_cal_status_t;
  
  /**
-  * @brief NAU7802 device configuration structure.
+  * @brief NAU7802 device handle.
   */
  typedef struct {
      i2c_port_t i2c_port; ///< I2C port number
      uint8_t i2c_addr;    ///< I2C device address (typically 0x2A)
  } nau7802_dev_t;
- 
+
  /**
-  * @brief Initialize the NAU7802 device.
+  * @brief NAU7802 initialization configuration.
+  *
+  * Passed to nau7802_init() to configure the device.
+  * All fields have sensible defaults via NAU7802_CONFIG_DEFAULT().
   */
- esp_err_t nau7802_init(nau7802_dev_t *dev, i2c_port_t i2c_port, uint8_t i2c_addr);
+ typedef struct {
+     nau7802_ldo_t ldo;           ///< LDO voltage
+     nau7802_gain_t gain;         ///< PGA gain
+     nau7802_rate_t rate;         ///< Sample rate
+     nau7802_channel_t channel;   ///< Input channel
+ } nau7802_config_t;
+
+ /**
+  * @brief Default configuration: 3.0V LDO, 128x gain, 10 SPS, channel 1.
+  */
+ #define NAU7802_CONFIG_DEFAULT() { \
+     .ldo = NAU7802_LDO_3V0, \
+     .gain = NAU7802_GAIN_128, \
+     .rate = NAU7802_RATE_10SPS, \
+     .channel = NAU7802_CHANNEL_1, \
+ }
+
+ /**
+  * @brief Initialize the NAU7802 device with the given configuration.
+  */
+ esp_err_t nau7802_init(nau7802_dev_t *dev, i2c_port_t i2c_port, uint8_t i2c_addr,
+                        const nau7802_config_t *config);
  
  /**
   * @brief Reset the NAU7802 device.
